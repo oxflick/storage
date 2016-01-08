@@ -1,4 +1,4 @@
-<h1>Project Description></h1>
+<h1>Project Description</h1>
 
 <p> In this project I developed a RESTful web application using the Python framework that provides a list of rooms and storages in these rooms. I integrated third party user registration and authentication. Authenticated users have the ability to add and edit a room, as well as post, edit and delete the storages in their rooms. </p>
 
