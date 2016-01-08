@@ -1,0 +1,142 @@
+body { 
+	background-color: #fff;
+	font-family: 'Montserrat', sans-serif;
+	font-weight: 400;
+}
+h1, h2, h3, h4 { 
+	color: #c0363b;
+}
+
+h2 { 
+	font-size: 1.2em;
+}
+
+p, dd, dt { 
+	color: #231614;
+}
+
+a {
+    text-decoration: none;
+    color:#FFFFCC;
+    font-size: .75em;
+}
+
+.navbar-brand {
+	font-family: 'Montserrat', sans-serif;
+	font-size: 36px;
+	font-weight: 700;
+	background-color: rgba(52, 39, 39, 0.5);
+}
+
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav>li>a {
+    color: #f8f8f8;
+}
+
+.navbar-default .navbar-brand:hover {
+    color: #be1e2d;
+    background-color: rgba(52, 39, 39, 0.5);
+}
+
+.navbar-default .navbar-nav>li>a:hover {
+	color: #f8f8f8;
+    background-color: #890717;
+}
+
+.navbar-default .navbar-nav>li>a {
+	font-size: 14px;
+	background-color: #be1e2d;
+	border-radius: 5px;
+}
+
+.navbar-default {
+    background-color: #080966;
+    border-color: transparent;
+}
+
+.navbar {
+    border-radius: 0px;
+}
+
+.navbar-default {
+	position: absolute;
+    right: 0;
+    left: 0;
+    background-color: transparent;
+}
+
+.baner {
+	display: block;
+    text-align: center;
+    background-color: #231614;
+    height: 50px;
+}
+
+.baner p {
+    color: #f8f8f8;
+    text-transform: uppercase;
+    padding-top: 10px;
+    font-size: 18px;
+}
+
+.storagename a {
+	color: #999;
+	font-size: 1.2em;
+}
+
+.edit {
+	color: red;
+}
+
+.delete {
+	color: blue;
+}
+
+.btn-default {
+    color: #5c150c;
+    background-color: #a39f79;
+    border-color: #a39f79;
+}
+
+.storagename {
+	padding-top: 5px;
+	margin-top: 5px;
+}
+
+.backsection {
+	margin-top: 10px;
+}
+
+.flash {
+    color: red;
+    margin-top: 5px;
+    font-size: 16px;
+}  
+
+.flash ul {
+    margin: 0 auto;
+    text-align: center;
+    list-style-type: none;
+}
+
+.publicmain {
+	margin-top: 20px;
+	line-height: 2.4em;
+}
+
+.publicmain p {
+	font-size: 18px;
+	color: #be1e2d;
+}
+ 
+
+/* Media Queries
+================================= */
+@media (max-width: 474px) {
+	.baner {
+		height: 80px;
+	}
+	.navbar-brand {
+		font-size: 32px;
+	}
+}

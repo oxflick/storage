@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+{% block content %}
+    	<div class="col-md-12">
+            <h1> Edit Sub Storage Item </h1>
+
+			<form action="{{url_for('editSubStorage', storage_name=storage_name, substorage_name=item.name )}}" method = 'post'>
+
+			<dl>
+				<dt>Name:</dt>
+					<dd><input type ='text' size='30' name='name' placeholder = '{{item.name }}'></dd>
+				<dt>Description:</dt>
+					<dd><textarea name = 'description' rows='5' cols='40' placeholder = '{{item.description }}'></textarea></dd>
+			
+
+			</dl>
+			<input class="btn btn-warning" type='submit' value='Edit'>
+
+			<a class="btn btn-danger" href ="{{url_for('storageSubStorage', storage_name=storage_name)}}"> Cancel </a>
+			</form>
+	    </div>
+{% endblock %}

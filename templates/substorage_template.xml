@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <substorage>
+    {% for substorage in substorages %}
+    
+        <name>{{substorage.name}}</name>
+        <description>{{substorage.description}}</description>
+    {% endfor %}
+    </substorage>

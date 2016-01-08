@@ -1,0 +1,30 @@
+{% extends "main.html" %}
+{% block content %}
+        <div class="col-md-12">
+            <div class = 'flash'>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  
+                <ul>
+                {% for message in messages %}
+                    <li> <strong> {{ message }} </strong> </li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>    
+        <div class="col-md-6">
+        	<div class="publicmain">
+	        	<p> Store all the household items in your personal online storage.  </p>
+	        	<p> Don't know if you have a certain tool,  light bulb, cough syrup?! </p>
+	        	<p> Check you storage before purchasing anything new. </p>
+	        	<p> Why wait? Sign up today! </p>
+	        	<a class="btn btn-danger" href="{{url_for('showLogin')}}">SIGN UP </a>
+            </div>
+        </div> 	
+        <div class="col-md-6">
+        	<img class="img-responsive" src="/static/box.png">
+        </div>	
+ 
+{% endblock %}

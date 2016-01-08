@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+{% block content %}
+        <div class="col-md-12">
+        	<div class = 'flash'>
+				{% with messages = get_flashed_messages() %}
+		        {% if messages %}
+		          
+		        <ul>
+		        {% for message in messages %}
+		            <li> <strong> {{ message }} </strong> </li>
+		        {% endfor %}
+		        </ul>
+		        {% endif %}
+		        {% endwith %}
+		    </div>
+        </div>
+        <div class="col-md-3">
+        	<h1>Rooms </h1> 
+	    	<a class="btn btn-warning" href="{{url_for('storageNew', storage=storage)}}">Add a Room</a>
+
+	        {% for i in rooms %}
+		    <div>
+		    	<div class="storagename">
+		    	    <a href="{{url_for('storageSubStorage', storage_name=i.name)}}">{{i.name}}</a>
+				</div>
+		    </div>
+		    {% endfor %}
+        </div>	
+    	<div class="col-md-9">
+		    <h1> {{item.name}} ({{countdata}} items)</h1>
+		    <div>
+	            <a class="btn btn-warning" href="{{url_for('storagesAll')}}">Back to Storage</a>
+	        </div>
+         	{% for i in substorages %}
+		    <div class = 'storagename'>
+				<a href="{{url_for('storageSubStorageItem', substorage_name=i.name, storage_name=i.storage.name)}}">{{i.name}}</a>			
+			</div>
+		{% endfor %}   
+        </div>
+{% endblock %}

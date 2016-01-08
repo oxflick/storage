@@ -1,0 +1,25 @@
+{% extends "main.html" %}
+{% block content %}
+    	<div class="col-md-12">
+            <h1> New Sub Storage Place, ex. Box </h1>
+			<form action="{{url_for('newSubStorage')}}" method = 'POST'>
+
+			<dl>
+				<dt>Name:</dt>
+					<dd><input type ='text' size='30' name='name'></dd>
+				<dt>Description:</dt>	
+					<dd><input type ='text' size='30' name='description'></dd>
+					<dt>Room:</dt>	
+					<select name='storage_name'>
+					{% for i in rooms %}	
+                    <option value="{{i.name}}">{{i.name}}</option>
+                    {% endfor %}
+                    </select></dd>
+
+			</dl>
+			<input class="btn btn-warning" type='submit' value='Create'>
+			<a class = "btn btn-danger" href = "{{url_for('storagesAll')}}"> Cancel </a>
+
+			</form>
+        </div>
+{% endblock %}

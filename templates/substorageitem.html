@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% block content %}
+    	<div class="col-md-12">
+		    <h1>{{substorage.name}} </h1>
+			<div class = "flash">
+					      {% with messages = get_flashed_messages() %}
+			      {% if messages %}
+			          
+			        <ul>
+			        {% for message in messages %}
+			            <li> <strong> {{ message }} </strong> </li>
+			        {% endfor %}
+			        </ul>
+			        {% endif %}
+			    {% endwith %}
+			</div>
+		    <div class = 'nameandprice'>
+				<span class="description"><p>{{substorage.description}}</p></span>			
+			</div>
+			<div class = "editdeletepane">
+			    <a class="edit" href="{{url_for('editSubStorage', storage_name = substorage.storage.name, substorage_name=substorage.name )}}" >EDIT</a>
+			    <a class="delete" href="{{ url_for('deleteSubStorage', storage_name = substorage.storage.name, substorage_name=substorage.name )}}">DELETE</a>
+			</div>
+			<div class="backsection">
+		        <a class="btn btn-warning" href="{{url_for('storagesAll')}}">Back to Storage</a>
+		    </div>
+		</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <roomstorage>
+    {% for storage in storages %}
+    
+        <name>{{storage.name}}</name>
+    
+    {% endfor %}
+    </roomstorage>

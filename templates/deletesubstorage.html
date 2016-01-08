@@ -1,0 +1,13 @@
+{% extends "main.html" %}
+{% block content %}
+
+    	<div class="col-md-12">
+            <h1> Are you sure you want to delete {{item.name}}? </h1>
+
+			<form action="{{ url_for('deleteSubStorage',storage_name = storage_name, substorage_name=item.name)}}" method = 'post'>
+
+				<input class="btn btn-warning" type='submit', value = 'Delete'>
+				<a class = "btn btn-danger" href = "{{url_for('storageSubStorage', storage_name=storage_name)}}"> Cancel </a>
+			</form>
+        </div>
+{% endblock %}
