@@ -18,9 +18,10 @@
 <ul>
 	<li> 1. Sign in with Google+ or Facebook account </li>
 	<li> 2. Add a room </li>
-	<li> 3. Add a storage and a description what will be stored in that storage </li>
-	<li> 4. Edit or delete storages </li>
-	<li> 5. Sign in as another user to see that there is no access to delete or edit items created by another user. </li>
+	<li> 3. Edit or Delete the room </li>
+	<li> 4. Add a storage and a description what will be stored in that storage </li>
+	<li> 5. Edit or delete storages </li>
+	<li> 6. Sign in as another user to see that there is no access to delete or edit items created by another user. </li>
 </ul>
 
 <h1> Technical Requirements </h1>
