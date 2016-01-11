@@ -16,7 +16,7 @@
         </div>
         <div class="col-md-3">
         	<h1>Rooms </h1> 
-	    	<a class="btn btn-warning" href="{{url_for('storageNew', storage=storage)}}">Add a Room</a>
+	    	<a class="btn btn-warning" href="{{url_for('storageNew')}}">Add a Room</a>
 
 	        {% for i in rooms %}
 		    <div>
@@ -30,6 +30,7 @@
 		    <h1> {{item.name}} ({{countdata}} items)</h1>
 		    <div class = "editdeleterest">
 				<a class="edit" href="{{ url_for('storageEdit', storage_name=item.name)}}" >EDIT</a>
+				<a class="delete" href="{{ url_for('storageDelete', storage_name=item.name)}}" >DELETE</a>
 			</div>
 		    <div>
 	            <a class="btn btn-warning" href="{{url_for('storagesAll')}}">Back to Storage</a>

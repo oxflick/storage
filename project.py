@@ -13,6 +13,9 @@ import json
 from flask import make_response
 import requests
 from flask import Response
+from functools import wraps
+from werkzeug import secure_filename
+import os
 
 app = Flask(__name__)
 
@@ -27,6 +30,17 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# Decorator for user login
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' in login_session:
+            return f(*args, **kwargs)
+        else:
+            flash("You are not allowed to access there")
+            return redirect(url_for('showLogin', next=request.url))
+    return decorated_function     
+
 
 # Create anti-forgery state token
 @app.route('/login')
@@ -34,7 +48,6 @@ def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
 
 
@@ -210,6 +223,7 @@ def fbdisconnect():
     return "you have been logged out"
 
 
+
 # User Helper Functions
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
@@ -231,7 +245,7 @@ def getUserID(email):
         return user.id
     except:
         return None
-
+      
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
@@ -324,60 +338,78 @@ def storagesAll():
 
 # Create a new storage room
 @app.route('/storage/new', methods=['GET', 'POST'])
-def storageNew():
-	if 'username' not in login_session:
-            return redirect('/login')
-	if request.method == 'POST':
-	    newStorage = Storage(
-	        name=request.form['name'], user_id=login_session['user_id'])
-	    session.add(newStorage)
-	    session.commit()
-	    flash("New Storage place created!")
-	    return redirect(url_for('storagesAll'))
-	else:
-	    return render_template('newstorage.html')
+@login_required
+def storageNew():            
+    if request.method == 'POST':
+        exists = session.query(Storage
+                              ).filter_by(name=request.form['name']).first()
+        if not exists:
+            if request.form['name'] != '': 
+    	        newStorage = Storage(name=request.form['name'], 
+                            user_id=login_session['user_id'])
+    	        session.add(newStorage)
+    	        session.commit()
+    	        flash("New Room created!")
+            else:
+                flash("Room Name can't be empty")
+                return redirect(url_for('storageNew')) 
+        else:
+            flash("Room Name can't be the same")
+            return redirect(url_for('storageNew'))                  
+    	return redirect(url_for('storagesAll'))
+    else:
+    	return render_template('newstorage.html')
 
 
 # Edit a storage room
 @app.route('/storage/<storage_name>/edit', methods=['GET', 'POST'])
+@login_required
 def storageEdit(storage_name): 
-	if 'username' not in login_session:
-            return redirect('/login')
-	storage = session.query(Storage).filter_by(name=storage_name).one()
-	if storage.user_id != login_session['user_id']:
+    storage = session.query(Storage).filter_by(name=storage_name).one()
+    if storage.user_id != login_session['user_id']:
             return "<script>function myFunction() {alert('You are not authorized to edit this storage room. Please create your own storage room in order to edit.');}</script><body onload='myFunction()''>"
-	if request.method == 'POST':
-	        if request.form['name']:
-	            storage.name = request.form['name']
-	        session.add(storage)
-	        session.commit()
-	        flash("Storage name edited!")
-	        return redirect(url_for('storagesAll'))
-	else:
-	        return render_template('editstorage.html', 
-	        	                    storage_name=storage_name, item = storage)
+    if request.method == 'POST':
+        exists = session.query(Storage
+                    ).filter_by(name=request.form['name']).first()
+        if not exists:
+            if request.form['name']:
+                storage.name = request.form['name']
+            session.add(storage)
+            session.commit()
+            flash("Room name edited!")
+        else:
+            flash("Room Name can't be the same")
+            return redirect(url_for('storageEdit', 
+                                    storage_name = storage_name))    
+        return redirect(url_for('storagesAll'))
+    else:
+        return render_template('editstorage.html', 
+                                    storage_name=storage_name, item = storage)
 
 
 # Delete a storage room
 @app.route('/storage/<storage_name>/delete', methods=['GET', 'POST'])
+@login_required
 def storageDelete(storage_name): 
-	if 'username' not in login_session:
-            return redirect('/login')
-	storage = session.query(Storage).filter_by(name=storage_name).one()
-	storage_id = storage.id
-	countsubstorages = session.query(SubStorage
-	).filter_by(storage_id=storage_id).count()
-	if storage.user_id != login_session['user_id']:
+    storage = session.query(Storage).filter_by(name=storage_name).one()
+    storage_id = storage.id
+    countsubstorages = session.query(SubStorage
+    ).filter_by(storage_id=storage_id).count()
+    if storage.user_id != login_session['user_id']:
             return "<script>function myFunction() {alert('You are not authorized to delete this storage room. Please create your own storage room in order to delete.');}</script><body onload='myFunction()''>"
-	if request.method == 'POST':      
-	        session.delete(storage)
-	        session.commit()
-	        flash("Storage name deleted!")
-	        return redirect(url_for('storagesAll'))
-	else:
-	        return render_template('deletestorage.html', 
-	        	                    storage_name=storage_name, item = storage, 
-	        	                    countsubstorages = countsubstorages)
+    if request.method == 'POST': 
+            if countsubstorages >= 1:
+                flash("This room has storages and can't be deleted")
+                return redirect(url_for('storagesAll')) 
+            else:    
+                session.delete(storage)
+                session.commit()
+                flash("Room deleted!")
+            return redirect(url_for('storagesAll'))
+    else:
+            return render_template('deletestorage.html', 
+                                    storage_name=storage_name, item = storage, 
+                                    countsubstorages = countsubstorages)
 
 
 # Show a storage places in a storage room
@@ -418,72 +450,94 @@ def storageSubStorageItem(storage_name, substorage_name):
 
 
 # Create a new substorage item
-@app.route('/storage/substorage/new', methods=['GET', 'POST'])    
+@app.route('/storage/substorage/new', methods=['GET', 'POST'])
+@login_required    
 def newSubStorage():
-	if 'username' not in login_session:
-            return redirect('/login')
-	rooms = session.query(Storage).all()
-        if request.method == 'POST':
-    	    storage = session.query(Storage
-    	    ).filter_by(name=request.form['storage_name']).one()
-    	    storage_id = storage.id
-            newItem = SubStorage(
-                name=request.form['name'], 
-                description=request.form['description'], 
-                storage_id=storage_id, user_id=storage.user_id)
-            session.add(newItem)
-            session.commit()
-            flash("New Storage created!")
-            return redirect(url_for('storagesAll'))
+    rooms = session.query(Storage).all()
+    if not rooms:
+        flash("you need to add a room first")
+        return redirect(url_for('storagesAll')) 
+    if request.method == 'POST':   
+        storage = session.query(Storage
+            ).filter_by(name=request.form['storage_name']).one()
+        storage_id = storage.id
+        exists = session.query(SubStorage
+                ).filter_by(storage_id = storage_id, 
+                            name=request.form['name']).first()
+        if not exists: 
+            if request.form['name'] == '': 
+                flash("Storage name can't be empty!") 
+                return render_template('newsubstorage.html', rooms = rooms)   
+            else:          
+                newItem = SubStorage(
+                    name=request.form['name'], 
+                    description=request.form['description'], 
+                    storage_id=storage_id, user_id=login_session['user_id'])
+                session.add(newItem)
+                session.commit()
+                flash("New Storage created!")
         else:
-            return render_template('newsubstorage.html', rooms = rooms)
+            flash("Two storages can't have same name!")
+            return render_template('newsubstorage.html', rooms = rooms)    
+        return redirect(url_for('storagesAll'))
+    else:
+        return render_template('newsubstorage.html', rooms = rooms)
 
 
 #Edit substorage item
 @app.route('/storage/<storage_name>/substorage/<substorage_name>/edit', 
-	        methods=['GET', 'POST'])    
+	        methods=['GET', 'POST'])  
+@login_required  
 def editSubStorage(storage_name, substorage_name):
-	if 'username' not in login_session:
-            return redirect('/login')
-	editedSubStorage = session.query(SubStorage
-	).filter_by(name=substorage_name).one()
-	if editedSubStorage.user_id != login_session['user_id']:
+    editedSubStorage = session.query(SubStorage
+    ).filter_by(name=substorage_name).one()
+    storage_id = editedSubStorage.storage_id
+    if editedSubStorage.user_id != login_session['user_id']:
             return "<script>function myFunction() {alert('You are not authorized to edit this sub storage. Please create your own sub storage of any room in order to edit.');}</script><body onload='myFunction()''>"
-	if request.method == 'POST':
-	        if request.form['name']:
-	            editedSubStorage.name = request.form['name']   
-	        if request.form['description']:
-	            editedSubStorage.description = request.form['description']    
-	        session.add(editedSubStorage)
-	        session.commit()
-	        flash("Sub Storage edited!")
-	        return redirect(url_for('storagesAll'))
-	else:
-	        return render_template('editsubstorage.html', 
-	        	                    storage_name=storage_name, 
-	                                substorage_name=substorage_name, 
-	                                item=editedSubStorage)         
+    if request.method == 'POST':
+            exists = session.query(SubStorage
+                ).filter_by(storage_id = storage_id, 
+                            name=request.form['name']).first()
+            if not exists:    
+                    if request.form['name']:
+                        editedSubStorage.name = request.form['name']   
+                    if request.form['description']:
+                        editedSubStorage.description = request.form['description']    
+                    session.add(editedSubStorage)
+                    session.commit()
+                    flash("Sub Storage edited!")
+            else:
+                    flash("Two storages can't have same name!")
+                    return render_template('editsubstorage.html',
+                                            storage_name=storage_name, 
+                                            substorage_name=substorage_name, 
+                                            item=editedSubStorage)          
+            return redirect(url_for('storagesAll'))
+    else:
+            return render_template('editsubstorage.html', 
+                                    storage_name=storage_name, 
+                                    substorage_name=substorage_name, 
+                                    item=editedSubStorage)       
 
 
 # Delete substorage Item
 @app.route('/storage/<storage_name>/substorage/<substorage_name>/delete', 
-	        methods=['GET', 'POST'])    
+	        methods=['GET', 'POST']) 
+@login_required               
 def deleteSubStorage(storage_name, substorage_name):
-	if 'username' not in login_session:
-            return redirect('/login')
-	subStorageToDelete = session.query(SubStorage
-	).filter_by(name=substorage_name).one()
-	if subStorageToDelete.user_id != login_session['user_id']:
+    subStorageToDelete = session.query(SubStorage
+    ).filter_by(name=substorage_name).one()
+    if subStorageToDelete.user_id != login_session['user_id']:
             return "<script>function myFunction() {alert('You are not authorized to delete this sub storage. Please create your own sub storage of any room in order to delete.');}</script><body onload='myFunction()''>"
-	if request.method == 'POST':    
-	        session.delete(subStorageToDelete)
-	        session.commit()
-	        flash("Sub Storage deleted!")
-	        return redirect(url_for('storagesAll'))
-	else:
-	        return render_template(
-	            'deletesubstorage.html', storage_name=storage_name, 
-	             substorage_name=substorage_name, item=subStorageToDelete) 
+    if request.method == 'POST':    
+            session.delete(subStorageToDelete)
+            session.commit()
+            flash("Sub Storage deleted!")
+            return redirect(url_for('storagesAll'))
+    else:
+            return render_template(
+                'deletesubstorage.html', storage_name=storage_name, 
+                 substorage_name=substorage_name, item=subStorageToDelete) 
 
 
 # Disconnect based on provider
